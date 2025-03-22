@@ -1,73 +1,72 @@
 #include <iostream>
 #include <fstream>
-#include <string>
 
 using namespace std;
 
-class PeselValidator {
-private:
+class PeselSprawdzanie {
     string pesel;
-    
+
 public:
-    PeselValidator(string pesel) {
+    PeselSprawdzanie(string pesel) {
         this->pesel = pesel;
     }
-    
+
     char sprawdzPlec() {
-        if ((pesel[9] - '0') % 2 == 0) {
+        int plec = pesel[9] - '0';
+        if (plec % 2 == 0) {
             return 'K';
         } else {
             return 'M';
         }
     }
-    
-    bool sprawdzSumeKontrolna() {
-        int wagi[10] = {1, 3, 7, 9, 1, 3, 7, 9, 1, 3};
+
+    bool sumaKontrolna() {
+        int waga[10] = {1, 3, 7, 9, 1, 3, 7, 9, 1, 3};
         int suma = 0;
         
         for (int i = 0; i < 10; i++) {
-            suma += (pesel[i] - '0') * wagi[i];
+            int cyfra = pesel[i] - '0';
+            suma += cyfra * waga[i];
         }
         
-        int kontrolna = (10 - (suma % 10)) % 10;
-        if (kontrolna == (pesel[10] - '0')) {
+        int m = suma % 10;
+        int r;
+        
+        if (m == 0) {
+            r = 0;
+        } else {
+            r = 10 - m;
+        }
+        
+        int ostatniaCyfra = pesel[10] - '0';
+        if (r == ostatniaCyfra) {
             return true;
         } else {
             return false;
         }
     }
-    
-    void wyswietlInformacje() {
-        cout << pesel << " ";
-        if (sprawdzPlec() == 'K') {
-            cout << "Kobieta";
-        } else {
-            cout << "Mezczyzna";
-        }
-        cout << " ";
-        if (sprawdzSumeKontrolna()) {
-            cout << "true";
-        } else {
-            cout << "false";
-        }
-        cout << endl;
-    }
 };
 
 int main() {
     ifstream plik("pesele.txt");
-    if (!plik) {
-        cout << "Nie mozna otworzyc pliku pesele.txt!" << endl;
-        return 1;
-    }
-    
     string pesel;
+    
     while (plik >> pesel) {
         if (pesel.length() != 11) {
-            cout << "Niepoprawny numer PESEL: " << pesel << endl;
+            cout << "Niepoprawna dlugosc PESEL: " << pesel << endl;
+            continue;
+        }
+        
+        PeselSprawdzanie sprawdz(pesel);
+        bool poprawny = sprawdz.sumaKontrolna();
+        char plec = sprawdz.sprawdzPlec();
+        
+        cout << "PESEL: " << pesel << " - Plec: " << plec << " - Poprawny: ";
+        
+        if (poprawny) {
+            cout << "Tak" << endl;
         } else {
-            PeselValidator validator(pesel);
-            validator.wyswietlInformacje();
+            cout << "Nie" << endl;
         }
     }
     
