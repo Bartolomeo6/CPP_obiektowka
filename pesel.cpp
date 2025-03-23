@@ -1,47 +1,57 @@
+// Online C++ compiler to run C++ program online
 #include <iostream>
 #include <fstream>
 
 using namespace std;
 
-class PeselSprawdzanie {
+class PeselV{
+    
     string pesel;
-
-public:
-    PeselSprawdzanie(string pesel) {
-        this->pesel = pesel;
+    
+    public:
+    PeselV(string P){
+        this->pesel = P;
     }
-
-    char sprawdzPlec() {
+    
+    ~PeselV(){
+        
+    }
+    
+    char sprawdzPlec(){
         int plec = pesel[9] - '0';
-        if (plec % 2 == 0) {
+        if(plec % 2 == 0){
             return 'K';
-        } else {
+        }
+        else{
             return 'M';
         }
     }
-
-    bool sumaKontrolna() {
-        int waga[10] = {1, 3, 7, 9, 1, 3, 7, 9, 1, 3};
-        int suma = 0;
+    
+    bool cyfraKontrolna(){
+        int waga[10] = {1,3,7,9,1,3,7,9,1,3};
+        int s = 0;
         
-        for (int i = 0; i < 10; i++) {
+        for(int i = 0; i<10; i++){
             int cyfra = pesel[i] - '0';
-            suma += cyfra * waga[i];
+            s += cyfra*waga[i];
         }
         
-        int m = suma % 10;
+        int m = s % 10;
         int r;
         
-        if (m == 0) {
+        if(m == 0){
             r = 0;
-        } else {
-            r = 10 - m;
+        }
+        else{
+            r = 10-m;
         }
         
-        int ostatniaCyfra = pesel[10] - '0';
-        if (r == ostatniaCyfra) {
+        int ostatniaBoi = pesel[10] - '0';
+        
+        if(r == ostatniaBoi){
             return true;
-        } else {
+        }
+        else{
             return false;
         }
     }
@@ -49,27 +59,19 @@ public:
 
 int main() {
     ifstream plik("pesele.txt");
-    string pesel;
     
-    while (plik >> pesel) {
-        if (pesel.length() != 11) {
-            cout << "Niepoprawna dlugosc PESEL: " << pesel << endl;
-            continue;
+    string linia;
+    while(plik >> linia){
+        PeselV sprawdzaniePesel(linia);
+        cout<<"Pesel: "<<linia<<" || Plec: "<<sprawdzaniePesel.sprawdzPlec()<<" || Poprawny: ";
+        
+        if(sprawdzaniePesel.cyfraKontrolna()){
+            cout<<"Tak\n";
         }
-        
-        PeselSprawdzanie sprawdz(pesel);
-        bool poprawny = sprawdz.sumaKontrolna();
-        char plec = sprawdz.sprawdzPlec();
-        
-        cout << "PESEL: " << pesel << " - Plec: " << plec << " - Poprawny: ";
-        
-        if (poprawny) {
-            cout << "Tak" << endl;
-        } else {
-            cout << "Nie" << endl;
+        else{
+            cout<<"Nie\n";
         }
     }
-    
-    plik.close();
+
     return 0;
 }
